@@ -6,6 +6,13 @@ const Item = {
     this.day = day;
     this.month = month;
     this.year = year;
+    this.dueDate = function() {
+      if (this.month === "Month" || this.year === "Year") {
+        return "No due date";
+      } else {
+        return `${this.month}/${this.year}`;
+      };
+    }.call(this);
     this.description = description;
     this.id = App.getRandomId();
     this.complete = false;
@@ -123,7 +130,6 @@ let App = {
   setFormData: function() {
     let inputs = $('form').get(0).elements;
 
-
     inputs.title.value = this.currentItem.title;
     inputs.day.value = this.currentItem.day;
     inputs.month.value = MONTHS[+this.currentItem.month - 1];
@@ -196,6 +202,14 @@ let App = {
   createTemplates: function() {
     let item = $("#item-template").html();
     this.itemTemplate = Handlebars.compile(item);
+
+    // Handlebars.registerHelper('renderDueDate', function(month, year, options) {
+    //   if (month === "Month" || year === "Year") {
+    //     return "No due Date";
+    //   } else {
+    //     return options.fn(this);
+    //   }
+    // });
   },
   init: function() {
     this.createTemplates();
