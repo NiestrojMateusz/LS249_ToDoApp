@@ -33,15 +33,20 @@ let App = {
   $modal: $('.modal'),
   getTodoList: function() {
     this.list = JSON.parse(localStorage.getItem('items')) || [];
-    return this.list.sort(function(a,b){
-      if (a.complete === false && b.complete === true) {
-        return -1;
-      } else if ( a.complete === true && b.complete === false) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+
+    if (this.filterCompleted().length) {
+      return this.list.sort(function(a,b){
+        if (a.complete === false && b.complete === true) {
+          return -1;
+        } else if ( a.complete === true && b.complete === false) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+    } else {
+      return this.list;
+    }
   },
   saveTodoList: function() {
    localStorage.setItem('items', JSON.stringify(this.list));
@@ -84,7 +89,9 @@ let App = {
      $checkbox.prop("checked", true);
     }
     this.updateItemStatus();
+    this.getCurrentCategory(this.currentCategory.dueDate);
     this.renderCompleted();
+    this.renderList(this.currentCategoryItems);
     this.renderHeaders(this.currentCategory);
   },
   deleteItem: function() {
@@ -109,7 +116,7 @@ let App = {
       this.deleteItem();
 
       if (!this.checkCategoryComplete(this.currentCategory)) {
-        this.render();
+        this.renderList();
       }
 
       this.renderCategories();
@@ -204,7 +211,7 @@ let App = {
   },
   handleSave: function(e) {
     this.currentItem ? this.updateItem() : this.createItem();
-    this.render();
+    this.renderList();
     this.renderCategories();
     this.renderHeaders();
     this.renderCompleted();
@@ -230,38 +237,46 @@ let App = {
   },
   filterCompleted: function() {
     return this.list.filter(function(item) {
-             return item.complete;
-           });
+      return item.complete;
+    });
+  },
+  getCurrentCategory: function() {
+    let categoryTitle = arguments[0] || "All Todos";
+    let list = this.getTodoList();
+
+    switch (categoryTitle) {
+      case "All Todos":
+        this.currentCategory = categoryTitle;
+        this.currentCategoryItems = list;
+        break;
+      case "Completed":
+        this.currentCategory = categoryTitle;
+        this.currentCategoryItems = this.filterCompleted();
+        break;
+      default:
+        this.currentCategory = this.categories.find(function(category) {
+          return category.dueDate === categoryTitle;
+        });
+
+        this.currentCategoryItems = list.filter(function(item) {
+          return item.dueDate === this.currentCategory.dueDate;
+        }.bind(this));
+        break;
+    }
   },
   handleCategoryClick: function(e) {
     e.preventDefault();
-    let filtered;
     let categoryTitle = $(e.currentTarget).find("a").text() || $(e.currentTarget).find('h2').text();
 
-    if (categoryTitle !== "All Todos" && categoryTitle !== "Completed") {
-      this.currentCategory = this.categories.find(function(category) {
-        return category.dueDate === categoryTitle;
-      });
-
-      filtered = this.filterByCategory($(e.currentTarget).find("a").text());
-      this.render(filtered);
-    } else {
-      this.currentCategory = categoryTitle;
-
-      if (categoryTitle === "Completed") {
-        // filter only completed
-        filtered = this.filterCompleted();
-        filtered.length ? this.render(filtered) : $(".item").remove();
-      } else {
-        this.render();
-      }
-    }
+    this.getCurrentCategory(categoryTitle);
+    let filtered = this.currentCategoryItems;
+    filtered.length ? this.renderList(filtered) : $(".item").remove();
     this.renderHeaders(this.currentCategory);
 
     $("nav").find(".active").removeClass("active");
     $(e.currentTarget).addClass("active");
   },
-  render: function() {
+  renderList: function() {
     let todos;
     if (arguments.length) {
       todos = {
@@ -339,10 +354,11 @@ let App = {
   init: function() {
     this.createTemplates();
     this.updateCategories();
-    this.render();
+    this.renderList();
     this.renderCategories();
     this.renderCompleted();
     this.renderHeaders();
+    this.getCurrentCategory();
     this.bindEvents();
   }
 };
