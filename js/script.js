@@ -22,7 +22,7 @@ const Item = {
 
 let App = {
   $modal: $('.modal'),
-  lastId: 0,
+  categories: [],
   getTodoList: function() {
     this.list = JSON.parse(localStorage.getItem('items')) || [];
     return this.list.sort(function(a,b){
@@ -154,8 +154,16 @@ let App = {
 
     this.saveTodoList();
   },
+  updateCategories: function() {
+    this.list.forEach(function(item){
+      if (this.categories.indexOf(item.dueDate) < 0) {
+        this.categories.push(item.dueDate);
+      }
+    }.bind(this));
+  },
   handleSave: function(e) {
     this.currentItem ? this.updateItem() : this.createItem();
+    this.updateCategories();
     this.render();
     this.toggleForm(e);
   },
@@ -184,9 +192,12 @@ let App = {
       let item = this.itemTemplate(todos);
       $("#todo_list").append(item);
     }
-    this.renderHeader();
+    this.renderHeaders();
   },
-  renderHeader: function() {
+  renderNavHeaders: function() {
+
+  },
+  renderHeaders: function() {
     let arg = arguments[0];
     let headerTitle;
     let counter;
@@ -196,20 +207,12 @@ let App = {
       headerTitle = "All Todos";
       counter = this.list.length;
     }
-    $('header h2').text(headerTitle);
-    $('.task_counter').text(counter);
+    $('main header h2').text(headerTitle);
+    $('header .task_counter').text(counter);
   },
   createTemplates: function() {
     let item = $("#item-template").html();
     this.itemTemplate = Handlebars.compile(item);
-
-    // Handlebars.registerHelper('renderDueDate', function(month, year, options) {
-    //   if (month === "Month" || year === "Year") {
-    //     return "No due Date";
-    //   } else {
-    //     return options.fn(this);
-    //   }
-    // });
   },
   init: function() {
     this.createTemplates();

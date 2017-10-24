@@ -36,7 +36,7 @@ nav {
 }
 .nav__all header {
   margin-bottom: 15px;
-  padding-left: 102px;
+  padding: 12px 0 10px 102px;
   height: auto;
 }
 .nav__all p {
@@ -59,13 +59,13 @@ nav {
   font-size: 1.125em;
   color: #fff;
 }
-.nav__all li {
+.nav__all li{
   padding: 12px 0 10px 0;
 }
-.nav__all li.active {
+.nav__all .active {
   background-color: #383f5f;
 }
-.nav__all li.active a {
+.nav__all .active a {
   color: #fff;
 }
 .nav__all li:last-of-type {
