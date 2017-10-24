@@ -275,6 +275,8 @@ let App = {
 
     $("nav").find(".active").removeClass("active");
     $(e.currentTarget).addClass("active");
+    $("nav .task_counter").removeClass("task_counter--active");
+    $(e.currentTarget).children('.task_counter').addClass('task_counter--active');
   },
   renderList: function() {
     let todos;
