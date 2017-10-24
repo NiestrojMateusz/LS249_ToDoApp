@@ -1,28 +1,36 @@
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Item = {
+  dueDate: function() {
+    if (this.month === "Month" || this.year === "Year") {
+      return "No due date";
+    } else {
+      return `${this.month}/${this.year}`;
+    }
+  },
   init: function(title, day, month, year, description) {
     this.title = title;
     this.day = day;
     this.month = month;
     this.year = year;
-    this.dueDate = function() {
-      if (this.month === "Month" || this.year === "Year") {
-        return "No due date";
-      } else {
-        return `${this.month}/${this.year}`;
-      };
-    }.call(this);
+    this.dueDate = this.dueDate();
     this.description = description;
     this.id = App.getRandomId();
     this.complete = false;
     return this;
   }
-}
+};
+
+const Category = {
+  init: function(dueDate) {
+    this.dueDate = dueDate;
+    this.counter = 1;
+    return this;
+  }
+};
 
 let App = {
   $modal: $('.modal'),
-  categories: [],
   getTodoList: function() {
     this.list = JSON.parse(localStorage.getItem('items')) || [];
     return this.list.sort(function(a,b){
@@ -76,7 +84,9 @@ let App = {
      $checkbox.prop("checked", true);
     }
     this.updateItemStatus();
-    this.render();
+    this.renderCategories();
+    this.renderCompleted();
+    this.renderHeaders();
   },
   deleteItem: function() {
     this.currentItemLi.remove();
@@ -98,7 +108,13 @@ let App = {
     } else if  (targetName === "IMG") {
       let $target = $(e.target);
       this.deleteItem();
-      this.render();
+
+      if (!this.checkCategoryComplete(this.currentCategory)) {
+        this.render();
+      }
+
+      this.renderCategories();
+      this.renderCompleted();
     } else if (e.target.className === 'add') {
       this.toggleForm(e);
     } else if (targetName === 'INPUT' || targetName === "DIV"){
@@ -136,6 +152,38 @@ let App = {
     inputs.year.value = this.currentItem.year;
     inputs.description.value = this.currentItem.description;
   },
+  createNewCategory: function(item) {
+    return Object.create(Category).init(item.dueDate);
+  },
+  checkCategoryComplete: function(category) {
+    let items = this.filterByCategory(category);
+
+    return items.every(function(item) {
+      return item.complete;
+    });
+  },
+  updateCategories: function() {
+    let storage = JSON.parse(localStorage.getItem('items'));
+    let categories = [];
+    storage.forEach(function(item) {
+      if (categories.length) {
+        let found = false;
+        for (let i=0; i < categories.length; i++) {
+          if (categories[i].dueDate === item.dueDate) {
+            categories[i].counter += 1;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          categories.push(this.createNewCategory(item));
+        }
+      } else {
+          categories.push(this.createNewCategory(item));
+      }
+    }.bind(this));
+    this.categories = categories;
+  },
   createItem: function() {
     let data = this.getFormData();
     let item =  Object.create(Item).init(data.title, data.day, data.month, data.year, data.description);
@@ -151,20 +199,16 @@ let App = {
     current.month = data.month;
     current.year = data.year;
     current.description = data.description;
+    current.dueDate = Item.dueDate.call(current);
 
     this.saveTodoList();
   },
-  updateCategories: function() {
-    this.list.forEach(function(item){
-      if (this.categories.indexOf(item.dueDate) < 0) {
-        this.categories.push(item.dueDate);
-      }
-    }.bind(this));
-  },
   handleSave: function(e) {
     this.currentItem ? this.updateItem() : this.createItem();
-    this.updateCategories();
     this.render();
+    this.renderCategories();
+    this.renderHeaders();
+    this.renderCompleted();
     this.toggleForm(e);
   },
   handleFormButtons: function(e) {
@@ -178,45 +222,128 @@ let App = {
       this.toggleForm(e);
     }
   },
-  bindEvents: function() {
-    $(".modal-overlay").on("click", this.toggleForm.bind(this));
-    $("form button").on("click", this.handleFormButtons.bind(this));
-    $("ul").on("click", this.handleItemClick.bind(this));
+  filterByCategory: function(category) {
+    let filtered = this.getTodoList().filter(function(item){
+      return item.dueDate === category;
+    });
+
+    return filtered;
+  },
+  filterCompleted: function() {
+    return this.list.filter(function(item) {
+             return item.complete;
+           });
+  },
+  handleCategoryClick: function(e) {
+    e.preventDefault();
+    let filtered;
+    let categoryTitle = $(e.currentTarget).find("a").text() || $(e.currentTarget).find('h2').text();
+
+    if (categoryTitle !== "All Todos" && categoryTitle !== "Completed") {
+      this.currentCategory = this.categories.find(function(category) {
+        return category.dueDate === categoryTitle;
+      });
+
+      filtered = this.filterByCategory($(e.currentTarget).find("a").text());
+      this.render(filtered);
+    } else {
+      this.currentCategory = categoryTitle;
+
+      if (categoryTitle === "Completed") {
+        // filter only completed
+        filtered = this.filterCompleted();
+        filtered.length ? this.render(filtered) : $(".item").remove();
+      } else {
+        this.render();
+      }
+    }
+    this.renderHeaders(this.currentCategory);
+
+    $("nav").find(".active").removeClass("active");
+    $(e.currentTarget).addClass("active");
   },
   render: function() {
-    let todos = {
-      items: this.getTodoList()
-    };
+    let todos;
+    if (arguments.length) {
+      todos = {
+        items: arguments[0]
+      };
+    } else {
+      todos = {
+        items: this.getTodoList()
+      };
+    }
+
     if (todos.items.length !== 0) {
       $(".item").remove();
       let item = this.itemTemplate(todos);
       $("#todo_list").append(item);
     }
-    this.renderHeaders();
   },
-  renderNavHeaders: function() {
+  renderCompleted: function() {
+    let completed = [];
+    this.categories.forEach(function(category) {
+      if (this.checkCategoryComplete(category.dueDate)) {
+        completed.push(category);
+        $("a:contains('"+category.dueDate+"')").closest("li").remove();
+      }
+    }.bind(this));
 
+    let categories = {
+      categories: completed
+    };
+
+    $(".nav__completed ul li").remove();
+    let category = this.categoryTemplate(categories);
+    $(".nav__completed ul").append(category);
+  },
+  renderCategories: function() {
+    this.updateCategories();
+    let categories = {
+      categories: this.categories
+    };
+    $(".nav__all ul li").remove();
+    let category = this.categoryTemplate(categories);
+    $(".nav__all ul").append(category);
   },
   renderHeaders: function() {
     let arg = arguments[0];
     let headerTitle;
     let counter;
-    if (arg) {
-      headerTitle = arg.innerText;
+    let completeCounter = this.filterCompleted().length;
+    if (typeof(arg) === "object") {
+      headerTitle = arg.dueDate;
+      counter = arg.counter;
+    } else if ( arg === "Completed") {
+      headerTitle = arg;
+      counter = completeCounter;
     } else {
-      headerTitle = "All Todos";
+      headerTitle = arg || "All Todos";
       counter = this.list.length;
     }
     $('main header h2').text(headerTitle);
     $('header .task_counter').text(counter);
+    $('.nav__completed header .task_counter').text(completeCounter);
   },
   createTemplates: function() {
     let item = $("#item-template").html();
+    let category = $("#category-template").html();
     this.itemTemplate = Handlebars.compile(item);
+    this.categoryTemplate = Handlebars.compile(category);
+  },
+  bindEvents: function() {
+    $(".modal-overlay").on("click", this.toggleForm.bind(this));
+    $("form button").on("click", this.handleFormButtons.bind(this));
+    $("#todo_list").on("click", this.handleItemClick.bind(this));
+    $("nav").on("click", "li, header", this.handleCategoryClick.bind(this));
   },
   init: function() {
     this.createTemplates();
+    this.updateCategories();
     this.render();
+    this.renderCategories();
+    this.renderCompleted();
+    this.renderHeaders();
     this.bindEvents();
   }
 };

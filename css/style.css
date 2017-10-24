@@ -34,19 +34,23 @@ nav {
 .nav__all {
   margin: 76px 0 65px 0px;
 }
-.nav__all header {
+.nav__all header,
+.nav__completed header {
   margin-bottom: 15px;
   padding: 12px 0 10px 102px;
   height: auto;
 }
-.nav__all p {
+.nav__all header:hover,
+.nav__completed header:hover {
+  cursor: pointer;
+}
+.nav__all p,
+.nav__completed li p {
   position: absolute;
   left: 286px;
 }
 .nav__all h2 {
   display: inline;
-  width: 100%;
-  height: auto;
   background: url(/images/all_todos.png) no-repeat;
 }
 .nav__all h2,
@@ -62,41 +66,44 @@ nav {
 .nav__all li{
   padding: 12px 0 10px 0;
 }
-.nav__all .active {
+.nav__all .active,
+.nav__completed .active {
   background-color: #383f5f;
 }
-.nav__all .active a {
+.nav__all .active a,
+.nav__completed .active a {
   color: #fff;
 }
-.nav__all li:last-of-type {
-  padding-bottom: 0;
-}
+
 .nav__all a {
   font-size: 1em;
-  color: #6B7292;
+  color: #9e9fa5;
   text-decoration: none;
   padding-left: 134px;
 }
 
 /*nav completed*/
-
-.nav__completed {
-  margin: 70px 0 0px 102px;
-}
 .nav__completed h2 {
   background: url(/images/completed.png) no-repeat;
-  margin-bottom: 23px;
-  /*padding-top: 5px;*/
 }
 .nav__completed li {
-  margin-bottom: 28px;
-  line-height: 90%;
+  padding: 12px 0 10px 102px;
 }
 .nav__completed a {
   text-decoration: line-through;
   color: #6B7292;
   padding-left: 32px;
  }
+
+ .nav__completed header {
+   position: relative;
+ }
+ .nav__completed header p {
+  position: absolute;
+  left: 286px;
+  top: 18px;
+}
+
 
  /* Main */
 main {
@@ -149,6 +156,7 @@ main .add {
   padding-top: 0;
   border: 0px;
   margin: 0 0 10px 0;
+  cursor: pointer;
 }
 main .add input[type=text] {
   color: #148fd5;
@@ -184,7 +192,7 @@ input[type=checkbox]:checked + label{
   background   : url(/images/checked.png) no-repeat 0 0;
   line-height  : 100%;
   text-decoration: line-through;
-  color: #e7e7e7;
+  color: #bdbdbd;
 }
 main li .thrash {
 padding: 15px;
@@ -238,7 +246,7 @@ textarea {
   width: 396px;
 }
 .title input::placeholder {
-  color: black;
+  color: rgb(116, 116, 116);
 }
 .due_date {
   overflow: hidden;

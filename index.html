@@ -18,36 +18,16 @@
         <header class="active"><h2>All Todos</h2><!--
         --><p class="task_counter task_counter--active"></p></header>
         <ul>
-          <li>
-            <a href="">02/16</a><!--
-            --><p class="task_counter">8</p>
-          </li>
-          <li>
-            <a href="">03/16</a><!--
-            --><p class="task_counter">2</p>
-          </li>
-          <li>
-            <a href="">04/16</a><!--
-            --><p class="task_counter">1</p>
-          </li>
-          <li>
-            <a href="">05/16</a><!--
-            --><p class="task_counter">1</p>
-          </li>
-          <li>
-            <a href="">06/16</a><!--
-            --><p class="task_counter">6</p>
-          </li>
+
         </ul>
       </section>
       <section class="nav__completed">
-        <h2>Completed</h2>
+        <header>
+          <h2>Completed</h2><!--
+          --><p class="task_counter task_counter--active"></p>
+        </header>
         <ul>
-          <li><a href="#" class="task_summary">02/16</a></li>
-          <li><a href="#" class="task_summary">03/16</a></li>
-          <li><a href="#" class="task_summary">04/16</a></li>
-          <li><a href="#" class="task_summary">05/16</a></li>
-          <li><a href="#" class="task_summary">06/16</a></li>
+
         </ul>
       </section>
     </nav>
@@ -59,7 +39,7 @@
       <section>
         <ul id="todo_list">
           <li class="add">
-            <input type="text" name="add_task" id="add_task" placeholder="Add new to do" disabled>
+            <input type="text" name="add_task" id="add_task" class="add" placeholder="Add new to do" disabled>
           </li>
         </ul>
       </section>
@@ -170,6 +150,14 @@
             </div>
           </div>
         </li>
+      {{/each}}
+    </script>
+    <script type="text/x-handlebars-template" id="category-template">
+      {{#each categories}}
+      <li>
+        <a href="">{{dueDate}}</a><!--
+        --><p class="task_counter">{{counter}}</p>
+      </li>
       {{/each}}
     </script>
     <script src="js/script.js"></script>
