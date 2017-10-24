@@ -84,9 +84,8 @@ let App = {
      $checkbox.prop("checked", true);
     }
     this.updateItemStatus();
-    this.renderCategories();
     this.renderCompleted();
-    this.renderHeaders();
+    this.renderHeaders(this.currentCategory);
   },
   deleteItem: function() {
     this.currentItemLi.remove();
@@ -285,7 +284,6 @@ let App = {
     this.categories.forEach(function(category) {
       if (this.checkCategoryComplete(category.dueDate)) {
         completed.push(category);
-        $("a:contains('"+category.dueDate+"')").closest("li").remove();
       }
     }.bind(this));
 
@@ -320,9 +318,10 @@ let App = {
     } else {
       headerTitle = arg || "All Todos";
       counter = this.list.length;
+      $('.nav__all header .task_counter').text(counter);
     }
     $('main header h2').text(headerTitle);
-    $('header .task_counter').text(counter);
+    $('main header .task_counter').text(counter);
     $('.nav__completed header .task_counter').text(completeCounter);
   },
   createTemplates: function() {
