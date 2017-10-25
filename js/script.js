@@ -29,7 +29,7 @@ const Category = {
   }
 };
 
-let App = {
+const App = {
   $modal: $('.modal'),
   getTodoList: function() {
     this.list = JSON.parse(localStorage.getItem('items')) || [];
