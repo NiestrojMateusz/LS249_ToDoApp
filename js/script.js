@@ -96,6 +96,7 @@ const App = {
   },
   deleteItem: function() {
     this.currentItemLi.remove();
+    this.currentCategory.counter -= 1;
     this.list.splice(this.currentItemIndex, 1);
     this.saveTodoList();
   },
@@ -115,13 +116,9 @@ const App = {
       let $target = $(e.target);
       this.deleteItem();
 
-      if (!this.checkCategoryComplete(this.currentCategory)) {
-        this.renderList();
-      }
-
       this.renderCategories();
       this.renderCompleted();
-      this.renderHeaders();
+      this.renderHeaders(this.currentCategory);
     } else if (e.target.className === 'add') {
       this.toggleForm(e);
     } else if (targetName === 'INPUT' || targetName === "DIV"){
@@ -274,11 +271,22 @@ const App = {
     filtered.length ? this.renderList(filtered) : $(".item").remove();
     this.renderHeaders(this.currentCategory);
 
+
+
     $("nav").find(".active").removeClass("active");
     $(e.currentTarget).addClass("active");
     $("nav .task_counter").removeClass("task_counter--active");
     $(e.currentTarget).children('.task_counter').addClass('task_counter--active');
+    // this.lastActiveCategory = $(e.currentTarget);
+    // this.lastActiveCounter = $(e.currentTarget).children('.task_counter');
+    // this.showActive();
   },
+  // showActive: function() {
+  //   $("nav").find(".active").removeClass("active");
+  //   this.lastActiveCategory.addClass("active");
+  //   $("nav .task_counter").removeClass("task_counter--active");
+  //   this.lastActiveCounter.children('.task_counter').addClass('task_counter--active');
+  // },
   renderList: function() {
     let todos;
     if (arguments.length) {
