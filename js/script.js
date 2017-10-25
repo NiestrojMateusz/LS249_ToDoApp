@@ -121,6 +121,7 @@ const App = {
 
       this.renderCategories();
       this.renderCompleted();
+      this.renderHeaders();
     } else if (e.target.className === 'add') {
       this.toggleForm(e);
     } else if (targetName === 'INPUT' || targetName === "DIV"){
