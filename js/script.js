@@ -271,22 +271,11 @@ const App = {
     filtered.length ? this.renderList(filtered) : $(".item").remove();
     this.renderHeaders(this.currentCategory);
 
-
-
     $("nav").find(".active").removeClass("active");
-    $(e.currentTarget).addClass("active");
     $("nav .task_counter").removeClass("task_counter--active");
+    $(e.currentTarget).addClass("active");
     $(e.currentTarget).children('.task_counter').addClass('task_counter--active');
-    // this.lastActiveCategory = $(e.currentTarget);
-    // this.lastActiveCounter = $(e.currentTarget).children('.task_counter');
-    // this.showActive();
   },
-  // showActive: function() {
-  //   $("nav").find(".active").removeClass("active");
-  //   this.lastActiveCategory.addClass("active");
-  //   $("nav .task_counter").removeClass("task_counter--active");
-  //   this.lastActiveCounter.children('.task_counter').addClass('task_counter--active');
-  // },
   renderList: function() {
     let todos;
     if (arguments.length) {
