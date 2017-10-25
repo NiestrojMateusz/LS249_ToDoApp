@@ -169,7 +169,7 @@ let App = {
     });
   },
   updateCategories: function() {
-    let storage = JSON.parse(localStorage.getItem('items'));
+    let storage = JSON.parse(localStorage.getItem('items')) || [];
     let categories = [];
     storage.forEach(function(item) {
       if (categories.length) {
