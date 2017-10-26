@@ -24,7 +24,7 @@
       <section class="nav__completed">
         <header>
           <h2>Completed</h2><!--
-          --><p class="task_counter task_counter--active"></p>
+          --><p class="task_counter"></p>
         </header>
         <ul>
 
@@ -156,7 +156,8 @@
       {{#each categories}}
       <li>
         <a href="">{{dueDate}}</a><!--
-        --><p class="task_counter">{{counter}}</p>
+        --><p class="task_counter">{{#if renderCompleted}}{{counterCompleted}}{{else}}{{counter}}{{/if}}</p>
+        </span>
       </li>
       {{/each}}
     </script>

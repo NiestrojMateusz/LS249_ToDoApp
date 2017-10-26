@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Item = {
@@ -23,9 +24,17 @@ const Item = {
 };
 
 const Category = {
-  init: function(dueDate) {
+  init: function(dueDate, completed) {
     this.dueDate = dueDate;
     this.counter = 1;
+    this.counterCompleted = function() {
+      if (completed) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }();
+    this.renderCompleted = false;
     return this;
   }
 };
@@ -87,12 +96,17 @@ const App = {
     if ($checkbox.prop("checked")) {
       $checkbox.prop("checked", false);
     } else {
-     $checkbox.prop("checked", true);
+      $checkbox.prop("checked", true);
     }
     this.updateItemStatus();
+    this.updateCategories();
     this.getCurrentCategory(this.currentCategory.dueDate || this.currentCategory);
     this.renderCompleted();
-    this.renderList(this.currentCategoryItems);
+    if (this.currentCategoryTree === "Completed" && !$(".nav__completed ul").children().length){
+      this.renderList([]);
+    } else {
+      this.renderList(this.currentCategoryItems);
+    }
     this.renderHeaders(this.currentCategory);
   },
   deleteItem: function() {
@@ -114,16 +128,16 @@ const App = {
       this.setFormData();
       this.toggleForm(e);
     } else if  (targetName === "IMG" || $(e.target).hasClass('thrash')) {
-      let $target = $(e.target);
-      this.deleteItem();
+        let $target = $(e.target);
+        this.deleteItem();
 
-      this.renderCategories();
-      this.renderCompleted();
-      this.renderHeaders(this.currentCategory);
+        this.renderCategories();
+        this.renderCompleted();
+        this.renderHeaders(this.currentCategory);
     } else if (e.target.className === 'add') {
-      this.toggleForm(e);
+        this.toggleForm(e);
     } else if (targetName === 'INPUT' || targetName === "DIV"){
-       this.handleCheckbox(e);
+        this.handleCheckbox(e);
     }
   },
   getFormData: function() {
@@ -158,7 +172,7 @@ const App = {
     inputs.description.value = this.currentItem.description;
   },
   createNewCategory: function(item) {
-    return Object.create(Category).init(item.dueDate);
+    return Object.create(Category).init(item.dueDate, item.complete);
   },
   checkCategoryComplete: function(category) {
     let items = this.filterByCategory(category);
@@ -176,6 +190,9 @@ const App = {
         for (let i=0; i < categories.length; i++) {
           if (categories[i].dueDate === item.dueDate) {
             categories[i].counter += 1;
+            if (item.complete) {
+              categories[i].counterCompleted +=1;
+            }
             found = true;
             break;
           }
@@ -225,8 +242,10 @@ const App = {
     if (target.innerText === "Save") {
       this.handleSave(e);
     } else {
-      if (this.list[this.currentItemIndex].complete) {
+      if (this.list[this.currentItemIndex] && this.list[this.currentItemIndex].complete) {
         alert("Already marked as complete");
+      } else if (!this.currentItem) {
+        alert("Cannot mark as complete as item has not been created yet!");
       } else {
         this.handleCheckbox(e);
       }
@@ -275,6 +294,15 @@ const App = {
 
     this.getCurrentCategory(categoryTitle);
     let filtered = this.currentCategoryItems;
+    this.currentCategoryTree = "All todos"
+
+    if ($(e.currentTarget).closest("section").hasClass("nav__completed")) {
+      filtered = filtered.filter(function(item) {
+        return item.complete;
+      });
+      this.currentCategoryTree = "Completed";
+    }
+
     filtered.length ? this.renderList(filtered) : $(".item").remove();
     this.renderHeaders(this.currentCategory);
 
@@ -304,15 +332,22 @@ const App = {
     }
   },
   renderCompleted: function() {
-    let completed = [];
-    this.categories.forEach(function(category) {
-      if (this.checkCategoryComplete(category.dueDate)) {
-        completed.push(category);
+    let completedCategories = [];
+    let completedItems = this.filterCompleted().map(function(item){
+      return item.dueDate;
+    });
+
+    completedItems.forEach(function(item) {
+      for (let i=0; i < this.categories.length; i++) {
+        if (this.categories[i].dueDate === item && !completedCategories.includes(this.categories[i])) {
+          this.categories[i].renderCompleted = true;
+          completedCategories.push(this.categories[i]);
+        }
       }
     }.bind(this));
 
     let categories = {
-      categories: completed
+      categories: completedCategories
     };
 
     $(".nav__completed ul li").remove();
@@ -345,6 +380,7 @@ const App = {
       counter = this.list.length;
       $('.nav__all header .task_counter').text(counter);
     }
+    counter = $('#todo_list').children('.item').length;
     $('.nav__all header .task_counter').text(navAllCounter);
     $('main header h2').text(headerTitle);
     $('main header .task_counter').text(counter);
