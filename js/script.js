@@ -299,15 +299,20 @@ const App = {
     e.preventDefault();
     let categoryTitle = $(e.currentTarget).find("a").text() || $(e.currentTarget).find('h2').text();
 
+    // check if click was on completed categories and set result as currentCategory tree
+    if ($(e.currentTarget).closest("section").hasClass("nav__completed")) {
+      this.currentCategoryTree = "Completed";
+    } else {
+      this.currentCategoryTree = "All todos";
+    }
+    // get the category title and filtered all the elements form that category
     this.getCurrentCategory(categoryTitle);
     let filtered = this.currentCategoryItems;
-    this.currentCategoryTree = "All todos";
-
-    if ($(e.currentTarget).closest("section").hasClass("nav__completed")) {
+    // if click was on completed category filter above item for only completed items
+    if (this.currentCategoryTree === "Completed") {
       filtered = filtered.filter(function(item) {
         return item.complete;
       });
-      this.currentCategoryTree = "Completed";
     }
 
     filtered.length ? this.renderList(filtered) : $(".item").remove();
