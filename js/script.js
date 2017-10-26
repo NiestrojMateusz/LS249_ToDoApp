@@ -215,6 +215,8 @@ const App = {
     this.renderHeaders();
     this.renderCompleted();
     this.toggleForm(e);
+    $("nav").find(".active").removeClass("active");
+    $('.nav__all header').addClass("active");
   },
   handleFormButtons: function(e) {
     e.preventDefault();
@@ -330,6 +332,7 @@ const App = {
     let arg = arguments[0];
     let headerTitle;
     let counter;
+    let navAllCounter = this.list.length;
     let completeCounter = this.filterCompleted().length;
     if (typeof(arg) === "object") {
       headerTitle = arg.dueDate;
@@ -342,6 +345,7 @@ const App = {
       counter = this.list.length;
       $('.nav__all header .task_counter').text(counter);
     }
+    $('.nav__all header .task_counter').text(navAllCounter);
     $('main header h2').text(headerTitle);
     $('main header .task_counter').text(counter);
     $('.nav__completed header .task_counter').text(completeCounter);
