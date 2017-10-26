@@ -158,7 +158,7 @@ const App = {
       month: parseMonth(inputs.month.value),
       year: inputs.year.value,
       description: inputs.description.value
-    }
+    };
 
     return data;
   },
@@ -301,7 +301,7 @@ const App = {
 
     this.getCurrentCategory(categoryTitle);
     let filtered = this.currentCategoryItems;
-    this.currentCategoryTree = "All todos"
+    this.currentCategoryTree = "All todos";
 
     if ($(e.currentTarget).closest("section").hasClass("nav__completed")) {
       filtered = filtered.filter(function(item) {
