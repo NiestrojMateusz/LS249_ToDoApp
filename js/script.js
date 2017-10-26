@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Item = {
@@ -5,7 +6,8 @@ const Item = {
     if (this.month === "Month" || this.year === "Year") {
       return "No due date";
     } else {
-      return `${this.month}/${this.year}`;
+
+      return `${this.month}/${this.year.slice(2)}`;
     }
   },
   init: function(title, day, month, year, description) {
@@ -89,7 +91,7 @@ const App = {
      $checkbox.prop("checked", true);
     }
     this.updateItemStatus();
-    this.getCurrentCategory(this.currentCategory.dueDate);
+    this.getCurrentCategory(this.currentCategory.dueDate || this.currentCategory);
     this.renderCompleted();
     this.renderList(this.currentCategoryItems);
     this.renderHeaders(this.currentCategory);
@@ -112,7 +114,7 @@ const App = {
     if (targetName === 'LABEL') {
       this.setFormData();
       this.toggleForm(e);
-    } else if  (targetName === "IMG") {
+    } else if  (targetName === "IMG" || $(e.target).hasClass('thrash')) {
       let $target = $(e.target);
       this.deleteItem();
 
@@ -222,7 +224,11 @@ const App = {
     if (target.innerText === "Save") {
       this.handleSave(e);
     } else {
-      this.handleCheckbox(e);
+      if (this.list[this.currentItemIndex].complete) {
+        alert("Already marked as complete");
+      } else {
+        this.handleCheckbox(e);
+      }
       this.toggleForm(e);
     }
   },
@@ -292,6 +298,8 @@ const App = {
       $(".item").remove();
       let item = this.itemTemplate(todos);
       $("#todo_list").append(item);
+    } else {
+      $(".item").remove();
     }
   },
   renderCompleted: function() {

@@ -146,6 +146,7 @@ main li div {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  position: relative;
 }
 main li.add::before {
   content: '+';
@@ -197,7 +198,7 @@ input[type=checkbox]:checked + label{
 main li .thrash {
 padding: 15px;
 margin-left: auto;
-/* display: inline-block; */
+/* position: absolute; */
 }
 
 main li .thrash:hover {
