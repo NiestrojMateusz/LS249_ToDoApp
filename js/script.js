@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Item = {
