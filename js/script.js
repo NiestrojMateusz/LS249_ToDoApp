@@ -285,6 +285,13 @@ const App = {
         this.currentCategoryItems = list.filter(function(item) {
           return item.dueDate === this.currentCategory.dueDate;
         }.bind(this));
+
+        if (this.currentCategoryTree === "Completed") {
+          this.currentCategoryItems = this.currentCategoryItems.filter(function(item) {
+            return item.complete;
+          }.bind(this));
+        }
+
         break;
     }
   },
@@ -371,13 +378,10 @@ const App = {
     let completeCounter = this.filterCompleted().length;
     if (typeof(arg) === "object") {
       headerTitle = arg.dueDate;
-      counter = arg.counter;
     } else if ( arg === "Completed") {
       headerTitle = arg;
-      counter = completeCounter;
     } else {
       headerTitle = arg || "All Todos";
-      counter = this.list.length;
       $('.nav__all header .task_counter').text(counter);
     }
     counter = $('#todo_list').children('.item').length;
